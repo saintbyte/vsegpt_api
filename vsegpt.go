@@ -12,12 +12,21 @@ import (
 )
 
 type VseGpt struct {
-	ApiKey string
-	Model  string
+	ApiKey           string
+	Model            string
+	MaxTokens        int
+	MaxEmbeddingSize int
+	EmbeddingModel   string
 }
 
 func NewVseGpt() *VseGpt {
-	return &VseGpt{ApiKey: ""}
+	return &VseGpt{
+		ApiKey:           "",
+		Model:            VseGptModel,
+		MaxTokens:        VseGptMaxTokens,
+		MaxEmbeddingSize: 8192,
+		EmbeddingModel:   VseGptEmbeddingModel,
+	}
 }
 func (v *VseGpt) GetRequestUrl(path string) string {
 	return "https://" + VseGptApiHost + path
@@ -84,7 +93,7 @@ func (v *VseGpt) GetModels() ([]ModelItem, error) {
 func (v *VseGpt) Embeddings(input string) ([]float64, error) {
 	url := v.GetRequestUrl(VseGptEmbeddingsPath)
 	jData, errJsonRequestEncode := json.Marshal(&EmbeddingsRequest{
-		Model:          VseGptEmbeddingModel,
+		Model:          v.EmbeddingModel,
 		Input:          input,
 		EncodingFormat: "float",
 	})
@@ -112,10 +121,10 @@ func (v *VseGpt) Embeddings(input string) ([]float64, error) {
 	return result.Data[0].Embedding, nil
 }
 
-func (v *VseGpt) ChatCompletion(model string, messages []MessageRequest) (string, error) {
+func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
 	url := v.GetRequestUrl(VseGptChatCompletionPath)
 	jData, errJsonRequestEncode := json.Marshal(&ChatCompletionRequest{
-		Model:    model,
+		Model:    v.Model,
 		Messages: messages,
 		Stream:   false,
 	})
@@ -141,11 +150,10 @@ func (v *VseGpt) ChatCompletion(model string, messages []MessageRequest) (string
 }
 
 func (v *VseGpt) Ask(question string) (string, error) {
-	messages := []MessageRequest{
+	return v.ChatCompletion([]MessageRequest{
 		MessageRequest{
 			Role:    "user",
 			Content: question,
 		},
-	}
-	return v.ChatCompletion(VseGptModel, messages)
+	})
 }
