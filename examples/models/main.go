@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/saintbyte/golang_gigachat_api/pkg/vsegpt"
+	vsegpt "github.com/saintbyte/vsegpt_api"
 	"log"
 )
 

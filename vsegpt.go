@@ -1,3 +1,8 @@
+// Package vsegpt Предоставляет доступ к сервису vsegpt.ru
+//
+// Это пакет можно использовать для непосредственно спрашивать у моделей доступ к которым передоставляет vsegpt.ru
+// Так и делать embedding
+
 package vsegpt
 
 import (
@@ -11,6 +16,7 @@ import (
 	"os"
 )
 
+// Основной класс для работы с vsegpt.ru
 type VseGpt struct {
 	ApiKey           string
 	Model            string
@@ -19,6 +25,7 @@ type VseGpt struct {
 	EmbeddingModel   string
 }
 
+// Возращает указатель экземпляр VseGpt
 func NewVseGpt() *VseGpt {
 	return &VseGpt{
 		ApiKey:           "",
@@ -28,7 +35,8 @@ func NewVseGpt() *VseGpt {
 		EmbeddingModel:   VseGptEmbeddingModel,
 	}
 }
-func (v *VseGpt) GetRequestUrl(path string) string {
+
+func (v *VseGpt) getRequestUrl(path string) string {
 	return "https://" + VseGptApiHost + path
 }
 
@@ -39,7 +47,7 @@ func (v *VseGpt) GetRequest(url string) (*http.Request, error) {
 		return nil, err
 	}
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Authorization", "Bearer "+v.GetCurrentToken())
+	request.Header.Set("Authorization", "Bearer "+v.getCurrentToken())
 	return request, nil
 }
 
@@ -48,14 +56,14 @@ func (v *VseGpt) PostRequest(url string, body io.Reader) (*http.Request, error) 
 	request, err := http.NewRequest("POST", url, body)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Authorization", "Bearer "+v.GetCurrentToken())
+	request.Header.Set("Authorization", "Bearer "+v.getCurrentToken())
 	if err != nil {
 		return nil, err
 	}
 	return request, nil
 }
 
-func (v *VseGpt) GetCurrentToken() string {
+func (v *VseGpt) getCurrentToken() string {
 	value, exists := os.LookupEnv(VseGptApiKeyEnv)
 	if exists {
 		return value
@@ -66,8 +74,9 @@ func (v *VseGpt) GetCurrentToken() string {
 	return ""
 }
 
+// GetModels Получить список доступных моделей.
 func (v *VseGpt) GetModels() ([]ModelItem, error) {
-	url := v.GetRequestUrl(VseGptModelsPath)
+	url := v.getRequestUrl(VseGptModelsPath)
 	request, err := v.GetRequest(url)
 	if err != nil {
 		return nil, err
@@ -90,8 +99,9 @@ func (v *VseGpt) GetModels() ([]ModelItem, error) {
 	return result.Data, nil
 }
 
+// Embeddings получить вектора текста
 func (v *VseGpt) Embeddings(input string) ([]float64, error) {
-	url := v.GetRequestUrl(VseGptEmbeddingsPath)
+	url := v.getRequestUrl(VseGptEmbeddingsPath)
 	jData, errJsonRequestEncode := json.Marshal(&EmbeddingsRequest{
 		Model:          v.EmbeddingModel,
 		Input:          input,
@@ -121,8 +131,9 @@ func (v *VseGpt) Embeddings(input string) ([]float64, error) {
 	return result.Data[0].Embedding, nil
 }
 
+// ChatCompletion Отправить запрос на ответ чата в виде набора сообщений.
 func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
-	url := v.GetRequestUrl(VseGptChatCompletionPath)
+	url := v.getRequestUrl(VseGptChatCompletionPath)
 	jData, errJsonRequestEncode := json.Marshal(&ChatCompletionRequest{
 		Model:    v.Model,
 		Messages: messages,
@@ -149,6 +160,7 @@ func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
 	return result.Choices[0].Message.Content, nil
 }
 
+// Ask просто спросить у модели. Контект того что было до этого не учитывается.
 func (v *VseGpt) Ask(question string) (string, error) {
 	return v.ChatCompletion([]MessageRequest{
 		MessageRequest{

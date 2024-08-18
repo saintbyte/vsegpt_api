@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/saintbyte/vsegpt_api/vsegpt"
+	vsegpt "github.com/saintbyte/vsegpt_api"
 	"log"
 )
 
