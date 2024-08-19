@@ -23,6 +23,7 @@ type VseGpt struct {
 	MaxTokens        int
 	MaxEmbeddingSize int
 	EmbeddingModel   string
+	ApiHost          string
 }
 
 // Возращает указатель экземпляр VseGpt
@@ -33,11 +34,12 @@ func NewVseGpt() *VseGpt {
 		MaxTokens:        VseGptMaxTokens,
 		MaxEmbeddingSize: 8192,
 		EmbeddingModel:   VseGptEmbeddingModel,
+		ApiHost:          VseGptApiHost,
 	}
 }
 
 func (v *VseGpt) getRequestUrl(path string) string {
-	return "https://" + VseGptApiHost + path
+	return "https://" + v.ApiHost + path
 }
 
 func (v *VseGpt) GetRequest(url string) (*http.Request, error) {
@@ -75,6 +77,7 @@ func (v *VseGpt) getCurrentToken() string {
 }
 
 // GetModels Получить список доступных моделей.
+// Выдается весь список моделей - внимательно смотрим какие доступны по подписке
 func (v *VseGpt) GetModels() ([]ModelItem, error) {
 	url := v.getRequestUrl(VseGptModelsPath)
 	request, err := v.GetRequest(url)

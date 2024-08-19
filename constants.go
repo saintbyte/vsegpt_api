@@ -1,8 +1,8 @@
 package vsegpt
 
 const (
-	VseGptApiKeyEnv          = "VSEGPT_API_KEY"
-	VseGptApiHost            = "api.vsegpt.ru" //api.vsegpt.ru:6070
+	VseGptApiKeyEnv          = "VSEGPT_API_KEY" // Переменная среды где лежит API ключ
+	VseGptApiHost            = "api.vsegpt.ru"  // api.vsegpt.ru:6070
 	VseGptModelsPath         = "/v1/models"
 	VseGptChatCompletionPath = "/v1/chat/completions"
 	VseGptEmbeddingsPath     = "/v1/embeddings"
