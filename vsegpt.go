@@ -48,7 +48,7 @@ func (v *VseGpt) getRequestUrl(path string) string {
 	return "https://" + v.ApiHost + path
 }
 
-func (v *VseGpt) GetRequest(url string) (*http.Request, error) {
+func (v *VseGpt) getRequest(url string) (*http.Request, error) {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -59,7 +59,7 @@ func (v *VseGpt) GetRequest(url string) (*http.Request, error) {
 	return request, nil
 }
 
-func (v *VseGpt) PostRequest(url string, body io.Reader) (*http.Request, error) {
+func (v *VseGpt) postRequest(url string, body io.Reader) (*http.Request, error) {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	request, err := http.NewRequest("POST", url, body)
 	request.Header.Add("Content-Type", "application/json")
@@ -86,7 +86,7 @@ func (v *VseGpt) getCurrentToken() string {
 // Выдается весь список моделей - внимательно смотрим какие доступны по подписке
 func (v *VseGpt) GetModels() ([]ModelItem, error) {
 	url := v.getRequestUrl(VseGptModelsPath)
-	request, err := v.GetRequest(url)
+	request, err := v.getRequest(url)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (v *VseGpt) Embeddings(input string) ([]float64, error) {
 	if errJsonRequestEncode != nil {
 		return nil, errJsonRequestEncode
 	}
-	request, err := v.PostRequest(url, bytes.NewReader(jData))
+	request, err := v.postRequest(url, bytes.NewReader(jData))
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
 	if errJsonRequestEncode != nil {
 		return "", errJsonRequestEncode
 	}
-	request, err := v.PostRequest(url, bytes.NewReader(jData))
+	request, err := v.postRequest(url, bytes.NewReader(jData))
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
