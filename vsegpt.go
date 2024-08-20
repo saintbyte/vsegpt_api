@@ -18,23 +18,29 @@ import (
 
 // Основной класс для работы с vsegpt.ru
 type VseGpt struct {
-	ApiKey           string
-	Model            string
-	MaxTokens        int
-	MaxEmbeddingSize int
-	EmbeddingModel   string
-	ApiHost          string
+	ApiKey            string
+	Model             string
+	MaxTokens         int
+	MaxEmbeddingSize  int
+	EmbeddingModel    string
+	ApiHost           string
+	Temperature       float32
+	N                 int
+	RepetitionPenalty float32
 }
 
 // Возращает указатель экземпляр VseGpt
 func NewVseGpt() *VseGpt {
 	return &VseGpt{
-		ApiKey:           "",
-		Model:            VseGptModel,
-		MaxTokens:        VseGptMaxTokens,
-		MaxEmbeddingSize: 8192,
-		EmbeddingModel:   VseGptEmbeddingModel,
-		ApiHost:          VseGptApiHost,
+		ApiKey:            "",
+		Model:             VseGptModel,
+		MaxTokens:         VseGptMaxTokens,
+		MaxEmbeddingSize:  8192,
+		EmbeddingModel:    VseGptEmbeddingModel,
+		ApiHost:           VseGptApiHost,
+		Temperature:       0.7,
+		N:                 1,
+		RepetitionPenalty: 1.0,
 	}
 }
 
@@ -138,9 +144,12 @@ func (v *VseGpt) Embeddings(input string) ([]float64, error) {
 func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
 	url := v.getRequestUrl(VseGptChatCompletionPath)
 	jData, errJsonRequestEncode := json.Marshal(&ChatCompletionRequest{
-		Model:    v.Model,
-		Messages: messages,
-		Stream:   false,
+		Model:             v.Model,
+		Messages:          messages,
+		Stream:            false,
+		Temperature:       v.Temperature,
+		N:                 v.N,
+		RepetitionPenalty: v.RepetitionPenalty,
 	})
 	if errJsonRequestEncode != nil {
 		return "", errJsonRequestEncode

@@ -52,8 +52,9 @@ type ChatCompletionRequest struct {
 	Model             string           `json:"model"`
 	Messages          []MessageRequest `json:"messages"`
 	Stream            bool             `json:"stream"`
-	RepetitionPenalty int              `json:"repetition_penalty,omitempty"`
+	RepetitionPenalty float32          `json:"repetition_penalty,omitempty"`
 	Temperature       float32          `json:"temperature,omitempty"`
+	N                 int              `json:"n,omitempty"`
 	TopP              float32          `json:"top_p,omitempty"`
 	MaxTokens         int              `json:"max_tokens,omitempty"`
 	UpdateInterval    int              `json:"update_interval,omitempty"`
