@@ -23,6 +23,7 @@ go.work.sum
 
 # env file
 .env
+.idea/
 /.idea/modules.xml
 /.idea/vcs.xml
 /.idea/vsegpt_api.iml
