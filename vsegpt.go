@@ -150,6 +150,7 @@ func (v *VseGpt) ChatCompletion(messages []MessageRequest) (string, error) {
 		Temperature:       v.Temperature,
 		N:                 v.N,
 		RepetitionPenalty: v.RepetitionPenalty,
+		MaxTokens:         v.MaxTokens,
 	})
 	if errJsonRequestEncode != nil {
 		return "", errJsonRequestEncode
